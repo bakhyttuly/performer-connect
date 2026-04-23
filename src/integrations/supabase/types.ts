@@ -14,6 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          budget: number | null
+          client_id: string
+          created_at: string
+          event_date: string
+          id: string
+          location: string
+          message: string | null
+          performer_id: string
+          status: Database["public"]["Enums"]["booking_status"]
+          updated_at: string
+        }
+        Insert: {
+          budget?: number | null
+          client_id: string
+          created_at?: string
+          event_date: string
+          id?: string
+          location: string
+          message?: string | null
+          performer_id: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          updated_at?: string
+        }
+        Update: {
+          budget?: number | null
+          client_id?: string
+          created_at?: string
+          event_date?: string
+          id?: string
+          location?: string
+          message?: string | null
+          performer_id?: string
+          status?: Database["public"]["Enums"]["booking_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_performer_id_fkey"
+            columns: ["performer_id"]
+            isOneToOne: false
+            referencedRelation: "performers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       performer_media: {
         Row: {
           created_at: string
@@ -62,11 +109,13 @@ export type Database = {
           price_currency: string | null
           price_from: number | null
           rating: number | null
+          rejection_reason: string | null
           reviews_count: number | null
           stage_name: string
           tagline: string | null
           updated_at: string
           user_id: string
+          verification_status: Database["public"]["Enums"]["verification_status"]
         }
         Insert: {
           category: string
@@ -80,11 +129,13 @@ export type Database = {
           price_currency?: string | null
           price_from?: number | null
           rating?: number | null
+          rejection_reason?: string | null
           reviews_count?: number | null
           stage_name: string
           tagline?: string | null
           updated_at?: string
           user_id: string
+          verification_status?: Database["public"]["Enums"]["verification_status"]
         }
         Update: {
           category?: string
@@ -98,11 +149,13 @@ export type Database = {
           price_currency?: string | null
           price_from?: number | null
           rating?: number | null
+          rejection_reason?: string | null
           reviews_count?: number | null
           stage_name?: string
           tagline?: string | null
           updated_at?: string
           user_id?: string
+          verification_status?: Database["public"]["Enums"]["verification_status"]
         }
         Relationships: []
       }
@@ -204,6 +257,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "performer" | "client"
+      booking_status:
+        | "pending"
+        | "accepted"
+        | "declined"
+        | "completed"
+        | "cancelled"
+      verification_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -332,6 +392,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "performer", "client"],
+      booking_status: [
+        "pending",
+        "accepted",
+        "declined",
+        "completed",
+        "cancelled",
+      ],
+      verification_status: ["pending", "approved", "rejected"],
     },
   },
 } as const
