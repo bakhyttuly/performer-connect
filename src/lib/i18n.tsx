@@ -87,6 +87,50 @@ const dict: Dict = {
   "auth.success.signin": { ru: "Добро пожаловать!", en: "Welcome back!" },
   "auth.success.signup": { ru: "Аккаунт создан. Проверьте почту для подтверждения.", en: "Account created. Check your email to confirm." },
 
+  // Roles
+  "role.client": { ru: "Клиент", en: "Client" },
+  "role.performer": { ru: "Исполнитель", en: "Performer" },
+  "role.admin": { ru: "Администратор", en: "Admin" },
+  "nav.admin": { ru: "Админ", en: "Admin" },
+
+  // Dashboard
+  "dash.welcome": { ru: "Добро пожаловать в EPBMS", en: "Welcome to EPBMS" },
+  "dash.bookings": { ru: "Бронирования", en: "Bookings" },
+  "dash.messages": { ru: "Сообщения", en: "Messages" },
+  "dash.favorites": { ru: "Избранное", en: "Favorites" },
+  "dash.becomeTitle": { ru: "Стать исполнителем", en: "Become a performer" },
+  "dash.becomeDesc": {
+    ru: "Создайте профиль артиста, добавьте описание и принимайте бронирования от клиентов EPBMS.",
+    en: "Create an artist profile, add details and start receiving bookings from EPBMS clients.",
+  },
+  "dash.becomeCta": { ru: "Активировать профиль", en: "Activate profile" },
+  "dash.becamePerformer": { ru: "Роль исполнителя добавлена", en: "Performer role granted" },
+  "dash.performerTitle": { ru: "Кабинет исполнителя", en: "Performer workspace" },
+  "dash.performerDesc": {
+    ru: "Заполните профиль, чтобы клиенты могли вас находить и бронировать.",
+    en: "Complete your profile so clients can find and book you.",
+  },
+  "dash.editProfile": { ru: "Редактировать профиль", en: "Edit profile" },
+  "dash.viewCatalog": { ru: "Открыть каталог", en: "Open catalog" },
+  "dash.adminTitle": { ru: "Панель администратора", en: "Admin console" },
+  "dash.adminDesc": {
+    ru: "Управление пользователями, ролями и верификацией артистов.",
+    en: "Manage users, roles and performer verification.",
+  },
+
+  // Admin
+  "admin.title": { ru: "Администрирование", en: "Administration" },
+  "admin.subtitle": { ru: "Управление пользователями и правами", en: "Manage users and permissions" },
+  "admin.users": { ru: "Пользователи", en: "Users" },
+  "admin.totalUsers": { ru: "Всего пользователей", en: "Total users" },
+  "admin.totalPerformers": { ru: "Исполнителей", en: "Performers" },
+  "admin.totalAdmins": { ru: "Админов", en: "Admins" },
+  "admin.grant": { ru: "Назначить", en: "Grant" },
+  "admin.revoke": { ru: "Снять", en: "Revoke" },
+  "admin.granted": { ru: "Роль назначена", en: "Role granted" },
+  "admin.revoked": { ru: "Роль снята", en: "Role revoked" },
+  "admin.empty": { ru: "Пользователей пока нет", en: "No users yet" },
+
   // Footer
   "footer.rights": { ru: "Все права защищены", en: "All rights reserved" },
   "footer.tagline": { ru: "Премиум платформа бронирования артистов", en: "Premium artist booking platform" },

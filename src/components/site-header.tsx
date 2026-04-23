@@ -2,14 +2,15 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useI18n, type Lang } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { Sparkles, LogOut } from "lucide-react";
+import { Sparkles, LogOut, LayoutDashboard, ShieldCheck } from "lucide-react";
 
 export function SiteHeader() {
   const { t, lang, setLang } = useI18n();
-  const { user, signOut } = useAuth();
+  const { user, hasRole, signOut } = useAuth();
   const navigate = useNavigate();
 
   const toggleLang = () => setLang(lang === "ru" ? "en" : ("ru" as Lang));
+  const isAdmin = hasRole("admin");
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/40 surface-glass">
@@ -51,6 +52,25 @@ export function SiteHeader() {
           >
             {t("nav.howItWorks")}
           </Link>
+          {user && (
+            <Link
+              to="/dashboard"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              activeProps={{ className: "text-foreground" }}
+            >
+              {t("nav.dashboard")}
+            </Link>
+          )}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="inline-flex items-center gap-1 text-sm text-primary transition-colors hover:text-foreground"
+              activeProps={{ className: "text-foreground" }}
+            >
+              <ShieldCheck className="h-3.5 w-3.5" />
+              {t("nav.admin")}
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-2">
@@ -63,18 +83,26 @@ export function SiteHeader() {
           </button>
 
           {user ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={async () => {
-                await signOut();
-                navigate({ to: "/" });
-              }}
-              className="gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">{t("nav.signout")}</span>
-            </Button>
+            <>
+              <Button asChild variant="ghost" size="sm" className="hidden gap-2 sm:inline-flex">
+                <Link to="/dashboard">
+                  <LayoutDashboard className="h-4 w-4" />
+                  <span className="hidden md:inline">{t("nav.dashboard")}</span>
+                </Link>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={async () => {
+                  await signOut();
+                  navigate({ to: "/" });
+                }}
+                className="gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">{t("nav.signout")}</span>
+              </Button>
+            </>
           ) : (
             <>
               <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">

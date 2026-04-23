@@ -1,10 +1,3 @@
-import perf1 from "@/assets/perf-1.jpg";
-import perf2 from "@/assets/perf-2.jpg";
-import perf3 from "@/assets/perf-3.jpg";
-import perf4 from "@/assets/perf-4.jpg";
-import perf5 from "@/assets/perf-5.jpg";
-import perf6 from "@/assets/perf-6.jpg";
-
 export type CategoryKey = "singer" | "dj" | "band" | "host" | "magic" | "show";
 
 export interface MockPerformer {
@@ -13,13 +6,13 @@ export interface MockPerformer {
   category: CategoryKey;
   tagline: { ru: string; en: string };
   description: { ru: string; en: string };
-  cover: string;
+  /** Two stops for the cover gradient */
+  gradient: [string, string];
   city: { ru: string; en: string };
   price_from: number;
   rating: number;
   reviews_count: number;
   verified: boolean;
-  gallery: string[];
 }
 
 export const mockPerformers: MockPerformer[] = [
@@ -32,13 +25,12 @@ export const mockPerformers: MockPerformer[] = [
       ru: "Лауреат международных конкурсов. Выступала на закрытых вечерах в Дубае, Монако и Москве. Идеально для свадеб, гала-вечеров и приватных торжеств.",
       en: "Award-winning vocalist. Performed at private gatherings in Dubai, Monaco and Moscow. Perfect for weddings, galas and private celebrations.",
     },
-    cover: perf1,
+    gradient: ["#3a2410", "#0f0a06"],
     city: { ru: "Москва", en: "Moscow" },
     price_from: 2400,
     rating: 4.95,
     reviews_count: 142,
     verified: true,
-    gallery: [perf1, perf3, perf5],
   },
   {
     id: "marco-luxe",
@@ -49,13 +41,12 @@ export const mockPerformers: MockPerformer[] = [
       ru: "Авторские сеты на стыке deep house и nu-disco. Поднимет любой dance-floor — от закрытой яхты до гала-вечера на 1000 гостей.",
       en: "Signature deep house and nu-disco sets. Will lift any dance floor — from a private yacht to a 1000-guest gala.",
     },
-    cover: perf2,
+    gradient: ["#2a1c08", "#0a0805"],
     city: { ru: "Дубай", en: "Dubai" },
     price_from: 3500,
     rating: 4.88,
     reviews_count: 96,
     verified: true,
-    gallery: [perf2, perf6, perf4],
   },
   {
     id: "vienna-strings",
@@ -66,13 +57,12 @@ export const mockPerformers: MockPerformer[] = [
       ru: "Классика, современные хиты в струнной аранжировке. Идеально для церемоний, ужинов и приёмов.",
       en: "Classics and modern hits in string arrangements. Perfect for ceremonies, dinners and receptions.",
     },
-    cover: perf3,
+    gradient: ["#3d2a14", "#0d0905"],
     city: { ru: "Вена", en: "Vienna" },
     price_from: 1800,
     rating: 5.0,
     reviews_count: 211,
     verified: true,
-    gallery: [perf3, perf1, perf5],
   },
   {
     id: "the-illusionist",
@@ -83,13 +73,12 @@ export const mockPerformers: MockPerformer[] = [
       ru: "Close-up магия и большие сцены. Создаёт wow-эффект для гостей любого уровня.",
       en: "Close-up magic and full-stage shows. Wows guests of any caliber.",
     },
-    cover: perf4,
+    gradient: ["#241a0a", "#080604"],
     city: { ru: "Лондон", en: "London" },
     price_from: 2100,
     rating: 4.92,
     reviews_count: 78,
     verified: true,
-    gallery: [perf4, perf2, perf6],
   },
   {
     id: "sofia-elegance",
@@ -100,13 +89,12 @@ export const mockPerformers: MockPerformer[] = [
       ru: "Элегантный стиль, безупречная подача, RU/EN. Ведёт свадьбы, корпоративы и церемонии награждений.",
       en: "Elegant style, flawless delivery, RU/EN. Hosts weddings, corporate events and award ceremonies.",
     },
-    cover: perf5,
+    gradient: ["#33240e", "#0c0805"],
     city: { ru: "Санкт-Петербург", en: "Saint Petersburg" },
     price_from: 1500,
     rating: 4.97,
     reviews_count: 184,
     verified: true,
-    gallery: [perf5, perf1, perf3],
   },
   {
     id: "celeste-aerial",
@@ -117,13 +105,12 @@ export const mockPerformers: MockPerformer[] = [
       ru: "Цирковое шоу мирового уровня — воздушные полотна, кольцо, реквизит. Для самых ярких событий.",
       en: "World-class circus show — aerial silks, hoop, props. For the brightest events.",
     },
-    cover: perf6,
+    gradient: ["#2e1f0c", "#090604"],
     city: { ru: "Париж", en: "Paris" },
     price_from: 2800,
     rating: 4.9,
     reviews_count: 64,
     verified: true,
-    gallery: [perf6, perf4, perf2],
   },
 ];
 
@@ -171,3 +158,29 @@ export const mockReviews: MockReview[] = [
     date: "2024-10-22",
   },
 ];
+
+/** Stable, locale-agnostic price formatting (avoids SSR hydration mismatches) */
+export function formatPrice(value: number): string {
+  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
+
+import { Mic2, Disc3, Music2, Sparkles, Wand2, Star } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
+export const categoryIcons: Record<CategoryKey, LucideIcon> = {
+  singer: Mic2,
+  dj: Disc3,
+  band: Music2,
+  host: Sparkles,
+  magic: Wand2,
+  show: Star,
+};
+
+export function getInitials(name: string): string {
+  return name
+    .split(/\s+/)
+    .map((p) => p.charAt(0))
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+}
