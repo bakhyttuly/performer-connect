@@ -10,14 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CatalogRouteImport } from './routes/catalog'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PerformerIdRouteImport } from './routes/performer.$id'
 
 const HowItWorksRoute = HowItWorksRouteImport.update({
   id: '/how-it-works',
   path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CatalogRoute = CatalogRouteImport.update({
@@ -28,6 +35,11 @@ const CatalogRoute = CatalogRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,44 +55,68 @@ const PerformerIdRoute = PerformerIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/catalog': typeof CatalogRoute
+  '/dashboard': typeof DashboardRoute
   '/how-it-works': typeof HowItWorksRoute
   '/performer/$id': typeof PerformerIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/catalog': typeof CatalogRoute
+  '/dashboard': typeof DashboardRoute
   '/how-it-works': typeof HowItWorksRoute
   '/performer/$id': typeof PerformerIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/catalog': typeof CatalogRoute
+  '/dashboard': typeof DashboardRoute
   '/how-it-works': typeof HowItWorksRoute
   '/performer/$id': typeof PerformerIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/catalog' | '/how-it-works' | '/performer/$id'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/catalog'
+    | '/dashboard'
+    | '/how-it-works'
+    | '/performer/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/catalog' | '/how-it-works' | '/performer/$id'
+  to:
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/catalog'
+    | '/dashboard'
+    | '/how-it-works'
+    | '/performer/$id'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/auth'
     | '/catalog'
+    | '/dashboard'
     | '/how-it-works'
     | '/performer/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   CatalogRoute: typeof CatalogRoute
+  DashboardRoute: typeof DashboardRoute
   HowItWorksRoute: typeof HowItWorksRoute
   PerformerIdRoute: typeof PerformerIdRoute
 }
@@ -92,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/how-it-works'
       fullPath: '/how-it-works'
       preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/catalog': {
@@ -106,6 +149,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -127,8 +177,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   CatalogRoute: CatalogRoute,
+  DashboardRoute: DashboardRoute,
   HowItWorksRoute: HowItWorksRoute,
   PerformerIdRoute: PerformerIdRoute,
 }
