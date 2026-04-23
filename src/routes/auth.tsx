@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
@@ -32,10 +32,9 @@ function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">(search.mode ?? "signin");
   const [loading, setLoading] = useState(false);
 
-  if (user) {
-    // Already signed in — bounce home
-    setTimeout(() => navigate({ to: "/" }), 0);
-  }
+  useEffect(() => {
+    if (user) navigate({ to: "/dashboard" });
+  }, [user, navigate]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -63,7 +62,7 @@ function AuthPage() {
         toast.error(error);
       } else {
         toast.success(t("auth.success.signin"));
-        navigate({ to: "/" });
+        navigate({ to: "/dashboard" });
       }
     } else {
       const { error } = await signUp(email, password, fullName);
