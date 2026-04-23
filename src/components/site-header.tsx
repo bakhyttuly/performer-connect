@@ -53,13 +53,22 @@ export function SiteHeader() {
             {t("nav.howItWorks")}
           </Link>
           {user && (
-            <Link
-              to="/dashboard"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              activeProps={{ className: "text-foreground" }}
-            >
-              {t("nav.dashboard")}
-            </Link>
+            <>
+              <Link
+                to="/dashboard"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                activeProps={{ className: "text-foreground" }}
+              >
+                {t("nav.dashboard")}
+              </Link>
+              <Link
+                to="/bookings"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                activeProps={{ className: "text-foreground" }}
+              >
+                {t("nav.bookings")}
+              </Link>
+            </>
           )}
           {isAdmin && (
             <Link
