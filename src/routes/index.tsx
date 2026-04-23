@@ -106,7 +106,6 @@ function HomePage() {
                 { v: "92", k: "stats.cities" },
                 { v: "4.94", k: "stats.rating" },
               ].map((s) => (
-                // Numbers use a regular space (not narrow) for SSR-stable hydration
                 <div key={s.k} className="text-center">
                   <div className="font-display text-3xl font-semibold text-gradient-gold md:text-4xl">
                     {s.v}
