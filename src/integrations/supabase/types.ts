@@ -14,16 +14,196 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      performer_media: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          performer_id: string
+          position: number | null
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          performer_id: string
+          position?: number | null
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          performer_id?: string
+          position?: number | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performer_media_performer_id_fkey"
+            columns: ["performer_id"]
+            isOneToOne: false
+            referencedRelation: "performers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      performers: {
+        Row: {
+          category: string
+          city: string | null
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_published: boolean | null
+          is_verified: boolean | null
+          price_currency: string | null
+          price_from: number | null
+          rating: number | null
+          reviews_count: number | null
+          stage_name: string
+          tagline: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          city?: string | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          is_verified?: boolean | null
+          price_currency?: string | null
+          price_from?: number | null
+          rating?: number | null
+          reviews_count?: number | null
+          stage_name: string
+          tagline?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          city?: string | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean | null
+          is_verified?: boolean | null
+          price_currency?: string | null
+          price_from?: number | null
+          rating?: number | null
+          reviews_count?: number | null
+          stage_name?: string
+          tagline?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          performer_id: string
+          rating: number
+          text: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          performer_id: string
+          rating: number
+          text?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          performer_id?: string
+          rating?: number
+          text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_performer_id_fkey"
+            columns: ["performer_id"]
+            isOneToOne: false
+            referencedRelation: "performers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "performer" | "client"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +330,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "performer", "client"],
+    },
   },
 } as const
