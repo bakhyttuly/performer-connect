@@ -2,7 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { Star, MapPin, BadgeCheck, MessageCircle, Calendar, ArrowLeft } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
-import { mockPerformers, mockReviews } from "@/lib/mock-data";
+import { mockPerformers, mockReviews, formatPrice } from "@/lib/mock-data";
+import { PerformerCover } from "@/components/performer-cover";
 
 export const Route = createFileRoute("/performer/$id")({
   loader: ({ params }) => {
@@ -35,14 +36,13 @@ function PerformerPage() {
     <div>
       {/* Cover */}
       <section className="relative h-[60vh] min-h-[440px] overflow-hidden">
-        <img
-          src={performer.cover}
-          alt={performer.stage_name}
-          className="h-full w-full object-cover"
-          width={1920}
-          height={1080}
+        <PerformerCover
+          name={performer.stage_name}
+          category={performer.category}
+          gradient={performer.gradient}
+          variant="hero"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/55 to-background" />
 
         <div className="container relative mx-auto h-full px-4 md:px-8">
           <Link
@@ -82,7 +82,7 @@ function PerformerPage() {
               <div className="text-muted-foreground">
                 {t("catalog.from")}{" "}
                 <span className="font-semibold text-foreground">
-                  ${performer.price_from.toLocaleString()}
+                  ${formatPrice(performer.price_from)}
                 </span>
               </div>
             </div>
@@ -91,7 +91,7 @@ function PerformerPage() {
       </section>
 
       <section className="container mx-auto grid gap-12 px-4 py-16 md:grid-cols-[2fr_1fr] md:px-8">
-        {/* Left: about + gallery + reviews */}
+        {/* Left: about + reviews */}
         <div className="space-y-12">
           <div>
             <h2 className="font-display text-2xl font-semibold text-foreground">
@@ -101,30 +101,6 @@ function PerformerPage() {
             <p className="mt-6 text-base leading-relaxed text-muted-foreground">
               {performer.description[lang]}
             </p>
-          </div>
-
-          <div>
-            <h2 className="font-display text-2xl font-semibold text-foreground">
-              {t("profile.gallery")}
-            </h2>
-            <div className="gold-divider mt-3" />
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              {performer.gallery.map((src: string, i: number) => (
-                <div
-                  key={i}
-                  className="overflow-hidden rounded-xl border border-border/40"
-                >
-                  <img
-                    src={src}
-                    alt=""
-                    loading="lazy"
-                    width={800}
-                    height={1024}
-                    className="aspect-[4/5] h-full w-full object-cover transition-transform duration-700 hover:scale-110"
-                  />
-                </div>
-              ))}
-            </div>
           </div>
 
           <div>
@@ -172,7 +148,7 @@ function PerformerPage() {
               {t("catalog.from")}
             </div>
             <div className="mt-1 font-display text-4xl font-semibold text-gradient-gold">
-              ${performer.price_from.toLocaleString()}
+              ${formatPrice(performer.price_from)}
             </div>
             <div className="mt-1 text-xs text-muted-foreground">USD · {performer.city[lang]}</div>
 

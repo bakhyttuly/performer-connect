@@ -4,7 +4,6 @@ import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { PerformerCard } from "@/components/performer-card";
 import { mockPerformers } from "@/lib/mock-data";
-import heroImg from "@/assets/hero-stage.jpg";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -18,15 +17,23 @@ function HomePage() {
     <div>
       {/* HERO */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <img
-            src={heroImg}
-            alt=""
-            width={1920}
-            height={1280}
-            className="h-full w-full object-cover opacity-40"
+        <div aria-hidden className="absolute inset-0 -z-10">
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage:
+                "radial-gradient(ellipse at 50% 0%, color-mix(in oklab, var(--gold) 20%, transparent) 0%, transparent 55%), radial-gradient(ellipse at 80% 30%, color-mix(in oklab, var(--gold) 10%, transparent) 0%, transparent 45%)",
+            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
+          <div
+            className="absolute inset-0 opacity-[0.08] mix-blend-overlay"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 1px 1px, #fff 1px, transparent 0)",
+              backgroundSize: "4px 4px",
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background" />
         </div>
 
         <div className="container mx-auto px-4 py-24 md:px-8 md:py-36">
@@ -99,6 +106,7 @@ function HomePage() {
                 { v: "92", k: "stats.cities" },
                 { v: "4.94", k: "stats.rating" },
               ].map((s) => (
+                // Numbers use a regular space (not narrow) for SSR-stable hydration
                 <div key={s.k} className="text-center">
                   <div className="font-display text-3xl font-semibold text-gradient-gold md:text-4xl">
                     {s.v}
