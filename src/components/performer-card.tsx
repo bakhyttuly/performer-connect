@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Star, MapPin, BadgeCheck } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
-import type { MockPerformer } from "@/lib/mock-data";
+import { formatPrice, type MockPerformer } from "@/lib/mock-data";
+import { PerformerCover } from "@/components/performer-cover";
 
 interface Props {
   performer: MockPerformer;
@@ -18,15 +19,14 @@ export function PerformerCard({ performer, index = 0 }: Props) {
       style={{ animationDelay: `${index * 60}ms` }}
     >
       <div className="relative aspect-[4/5] overflow-hidden">
-        <img
-          src={performer.cover}
-          alt={performer.stage_name}
-          loading="lazy"
-          width={800}
-          height={1024}
-          className="h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+        <div className="absolute inset-0 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-110">
+          <PerformerCover
+            name={performer.stage_name}
+            category={performer.category}
+            gradient={performer.gradient}
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
 
         {performer.verified && (
           <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-background/70 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-primary backdrop-blur-md">
@@ -64,7 +64,7 @@ export function PerformerCard({ performer, index = 0 }: Props) {
           <div className="text-muted-foreground">
             {t("catalog.from")}{" "}
             <span className="font-semibold text-foreground">
-              ${performer.price_from.toLocaleString()}
+              ${formatPrice(performer.price_from)}
             </span>
           </div>
         </div>
