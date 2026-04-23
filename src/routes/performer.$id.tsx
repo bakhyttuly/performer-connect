@@ -1,9 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { Star, MapPin, BadgeCheck, MessageCircle, Calendar, ArrowLeft } from "lucide-react";
+import { Star, MapPin, BadgeCheck, MessageCircle, ArrowLeft } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { mockPerformers, mockReviews, formatPrice } from "@/lib/mock-data";
 import { PerformerCover } from "@/components/performer-cover";
+import { BookingDialog } from "@/components/booking-dialog";
 
 export const Route = createFileRoute("/performer/$id")({
   loader: ({ params }) => {
@@ -153,10 +154,10 @@ function PerformerPage() {
             <div className="mt-1 text-xs text-muted-foreground">USD · {performer.city[lang]}</div>
 
             <div className="mt-6 space-y-2">
-              <Button variant="luxe" size="lg" className="w-full">
-                <Calendar className="h-4 w-4" />
-                {t("profile.book")}
-              </Button>
+              <BookingDialog
+                performerId={performer.id}
+                performerName={performer.stage_name}
+              />
               <Button variant="outlineGold" size="lg" className="w-full">
                 <MessageCircle className="h-4 w-4" />
                 {t("profile.message")}
