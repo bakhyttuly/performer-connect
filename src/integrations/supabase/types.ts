@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      booking_messages: {
+        Row: {
+          body: string
+          booking_id: string
+          created_at: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          booking_id: string
+          created_at?: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          booking_id?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_messages_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           budget: number | null
@@ -54,6 +86,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "bookings_performer_id_fkey"
+            columns: ["performer_id"]
+            isOneToOne: false
+            referencedRelation: "performers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      performer_availability: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          note: string | null
+          performer_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          note?: string | null
+          performer_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          note?: string | null
+          performer_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performer_availability_performer_id_fkey"
             columns: ["performer_id"]
             isOneToOne: false
             referencedRelation: "performers"
@@ -252,6 +319,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_booking_participant: {
+        Args: { _booking_id: string; _user_id: string }
         Returns: boolean
       }
     }

@@ -1,10 +1,12 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { Star, MapPin, BadgeCheck, MessageCircle, ArrowLeft } from "lucide-react";
+import { useState } from "react";
+import { Star, MapPin, BadgeCheck, MessageCircle, ArrowLeft, Calendar as CalendarIcon } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { mockPerformers, mockReviews, formatPrice } from "@/lib/mock-data";
 import { PerformerCover } from "@/components/performer-cover";
 import { BookingDialog } from "@/components/booking-dialog";
+import { AvailabilityCalendar } from "@/components/availability-calendar";
 
 import { supabase } from "@/integrations/supabase/client";
 import type { CategoryKey } from "@/lib/mock-data";
@@ -83,6 +85,10 @@ function PerformerPage() {
   const { performer } = Route.useLoaderData();
   const reviews = mockReviews.filter((r) => r.performerId === performer.id);
 
+  const [pickedDate, setPickedDate] = useState<string | null>(null);
+  const [pickedSlot, setPickedSlot] = useState<string | null>(null);
+  const [bookingOpen, setBookingOpen] = useState(false);
+
   return (
     <div>
       {/* Cover */}
@@ -142,7 +148,7 @@ function PerformerPage() {
       </section>
 
       <section className="container mx-auto grid gap-12 px-4 py-16 md:grid-cols-[2fr_1fr] md:px-8">
-        {/* Left: about + reviews */}
+        {/* Left: about + availability + reviews */}
         <div className="space-y-12">
           <div>
             <h2 className="font-display text-2xl font-semibold text-foreground">
@@ -152,6 +158,50 @@ function PerformerPage() {
             <p className="mt-6 text-base leading-relaxed text-muted-foreground">
               {performer.description[lang]}
             </p>
+          </div>
+
+          <div>
+            <h2 className="font-display text-2xl font-semibold text-foreground">
+              {t("avail.title")}
+            </h2>
+            <div className="gold-divider mt-3" />
+            <p className="mt-3 text-sm text-muted-foreground">{t("avail.subtitle")}</p>
+            <div className="card-luxe mt-6 rounded-2xl p-5 md:p-6">
+              <AvailabilityCalendar
+                performerId={performer.id}
+                value={pickedDate}
+                slot={pickedSlot}
+                onChange={(d, s) => {
+                  setPickedDate(d);
+                  setPickedSlot(s);
+                }}
+              />
+              <div className="mt-5 flex items-center justify-between gap-3">
+                <div className="text-sm text-muted-foreground">
+                  {pickedDate ? (
+                    <>
+                      <span className="font-medium text-foreground">
+                        {new Date(pickedDate).toLocaleDateString(lang === "ru" ? "ru-RU" : "en-US", {
+                          day: "2-digit",
+                          month: "long",
+                        })}
+                      </span>
+                      {pickedSlot && <span className="ml-2 text-primary">· {pickedSlot}</span>}
+                    </>
+                  ) : (
+                    t("avail.pickDate")
+                  )}
+                </div>
+                <Button
+                  variant="luxe"
+                  disabled={!pickedDate}
+                  onClick={() => setBookingOpen(true)}
+                >
+                  <CalendarIcon className="h-4 w-4" />
+                  {t("avail.bookSelected")}
+                </Button>
+              </div>
+            </div>
           </div>
 
           <div>
@@ -207,7 +257,21 @@ function PerformerPage() {
               <BookingDialog
                 performerId={performer.id}
                 performerName={performer.stage_name}
+                initialDate={pickedDate}
+                initialSlot={pickedSlot}
+                open={bookingOpen}
+                onOpenChange={setBookingOpen}
+                renderTrigger={false}
               />
+              <Button
+                variant="luxe"
+                size="lg"
+                className="w-full"
+                onClick={() => setBookingOpen(true)}
+              >
+                <CalendarIcon className="h-4 w-4" />
+                {t("profile.book")}
+              </Button>
               <Button variant="outlineGold" size="lg" className="w-full">
                 <MessageCircle className="h-4 w-4" />
                 {t("profile.message")}

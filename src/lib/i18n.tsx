@@ -212,6 +212,44 @@ const dict: Dict = {
   "footer.rights": { ru: "Все права защищены", en: "All rights reserved" },
   "footer.tagline": { ru: "Премиум платформа бронирования артистов", en: "Premium artist booking platform" },
 
+  // Chat
+  "chat.title": { ru: "Чат по бронированию", en: "Booking chat" },
+  "chat.open": { ru: "Открыть чат", en: "Open chat" },
+  "chat.close": { ru: "Свернуть чат", en: "Close chat" },
+  "chat.placeholder": { ru: "Напишите сообщение…", en: "Type a message…" },
+  "chat.send": { ru: "Отправить", en: "Send" },
+  "chat.empty": { ru: "Сообщений пока нет — начните диалог", en: "No messages yet — say hello" },
+
+  // Availability
+  "avail.title": { ru: "Календарь доступности", en: "Availability calendar" },
+  "avail.subtitle": {
+    ru: "Выберите дату — занятые дни недоступны для бронирования.",
+    en: "Pick a date — busy days are not bookable.",
+  },
+  "avail.timeSlots": { ru: "Доступные слоты", en: "Available slots" },
+  "avail.pickDate": { ru: "Выберите дату для бронирования", en: "Pick a date to book" },
+  "avail.bookSelected": { ru: "Забронировать", en: "Book selected" },
+  "avail.legend.free": { ru: "Свободно", en: "Free" },
+  "avail.legend.busy": { ru: "Занято", en: "Busy" },
+
+  // Schedule manager
+  "schedule.title": { ru: "Расписание", en: "Schedule" },
+  "schedule.heading": { ru: "Управление доступностью", en: "Manage availability" },
+  "schedule.desc": {
+    ru: "Заблокируйте даты, когда вы недоступны. Принятые бронирования помечаются автоматически.",
+    en: "Block the dates you're unavailable. Accepted bookings are marked automatically.",
+  },
+  "schedule.block": { ru: "Заблокировать", en: "Block" },
+  "schedule.added": { ru: "Дата заблокирована", en: "Date blocked" },
+  "schedule.removed": { ru: "Дата освобождена", en: "Date freed" },
+  "schedule.cantRemoveBooked": {
+    ru: "Эта дата занята подтверждённым бронированием.",
+    en: "This date is held by a confirmed booking.",
+  },
+  "schedule.empty": { ru: "Все даты свободны", en: "All dates are free" },
+  "schedule.booked": { ru: "Бронирование", en: "Booked" },
+  "schedule.blocked": { ru: "Заблокировано", en: "Blocked" },
+
   // Misc
   "common.soon": { ru: "Скоро", en: "Soon" },
   "common.loading": { ru: "Загрузка…", en: "Loading…" },

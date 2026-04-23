@@ -6,6 +6,7 @@ import { useAuth, type AppRole } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { VerificationTimeline, type VerificationStatus } from "@/components/verification-timeline";
+import { PerformerScheduleManager } from "@/components/performer-schedule-manager";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -170,6 +171,13 @@ function DashboardPage() {
                 </Button>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Schedule manager — only for approved performers */}
+        {performer && performer.verification_status === "approved" && (
+          <div className="mt-10">
+            <PerformerScheduleManager performerId={performer.id} />
           </div>
         )}
 
