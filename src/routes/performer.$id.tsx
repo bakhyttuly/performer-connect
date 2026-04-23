@@ -1,14 +1,65 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { Star, MapPin, BadgeCheck, MessageCircle, Calendar, ArrowLeft } from "lucide-react";
+import { Star, MapPin, BadgeCheck, MessageCircle, ArrowLeft } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { mockPerformers, mockReviews, formatPrice } from "@/lib/mock-data";
 import { PerformerCover } from "@/components/performer-cover";
+import { BookingDialog } from "@/components/booking-dialog";
+
+import { supabase } from "@/integrations/supabase/client";
+import type { CategoryKey } from "@/lib/mock-data";
+
+interface LoadedPerformer {
+  id: string;
+  stage_name: string;
+  category: CategoryKey;
+  tagline: { ru: string; en: string };
+  description: { ru: string; en: string };
+  gradient: [string, string];
+  city: { ru: string; en: string };
+  price_from: number;
+  rating: number;
+  reviews_count: number;
+  verified: boolean;
+}
+
+const fallbackGradients: Record<string, [string, string]> = {
+  singer: ["#3a2410", "#0f0a06"],
+  dj: ["#2a1c08", "#0a0805"],
+  band: ["#3d2a14", "#0d0905"],
+  host: ["#33240e", "#0c0805"],
+  magic: ["#241a0a", "#080604"],
+  show: ["#2e1f0c", "#090604"],
+};
 
 export const Route = createFileRoute("/performer/$id")({
-  loader: ({ params }) => {
-    const performer = mockPerformers.find((p) => p.id === params.id);
-    if (!performer) throw notFound();
+  loader: async ({ params }) => {
+    const mockMatch = mockPerformers.find((p) => p.id === params.id);
+    if (mockMatch) return { performer: mockMatch as LoadedPerformer };
+
+    // Try DB by UUID
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(params.id);
+    if (!isUuid) throw notFound();
+    const { data } = await supabase
+      .from("performers")
+      .select("id, stage_name, category, tagline, description, city, price_from, rating, reviews_count, is_verified, is_published, verification_status")
+      .eq("id", params.id)
+      .maybeSingle();
+    if (!data || data.verification_status !== "approved") throw notFound();
+    const cat = (data.category as CategoryKey) ?? "show";
+    const performer: LoadedPerformer = {
+      id: data.id,
+      stage_name: data.stage_name,
+      category: cat,
+      tagline: { ru: data.tagline ?? "", en: data.tagline ?? "" },
+      description: { ru: data.description ?? "", en: data.description ?? "" },
+      gradient: fallbackGradients[cat] ?? fallbackGradients.show,
+      city: { ru: data.city ?? "", en: data.city ?? "" },
+      price_from: data.price_from ?? 0,
+      rating: Number(data.rating ?? 0),
+      reviews_count: data.reviews_count ?? 0,
+      verified: !!data.is_verified,
+    };
     return { performer };
   },
   notFoundComponent: NotFound,
@@ -153,10 +204,10 @@ function PerformerPage() {
             <div className="mt-1 text-xs text-muted-foreground">USD · {performer.city[lang]}</div>
 
             <div className="mt-6 space-y-2">
-              <Button variant="luxe" size="lg" className="w-full">
-                <Calendar className="h-4 w-4" />
-                {t("profile.book")}
-              </Button>
+              <BookingDialog
+                performerId={performer.id}
+                performerName={performer.stage_name}
+              />
               <Button variant="outlineGold" size="lg" className="w-full">
                 <MessageCircle className="h-4 w-4" />
                 {t("profile.message")}

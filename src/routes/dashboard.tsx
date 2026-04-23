@@ -1,11 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { LayoutDashboard, ShieldCheck, Star, Sparkles, MessageCircle, Calendar, ArrowRight, Plus } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, Star, Sparkles, MessageCircle, Calendar, ArrowRight, Plus, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth, type AppRole } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { VerificationTimeline, type VerificationStatus } from "@/components/verification-timeline";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -17,15 +17,52 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 });
 
+interface PerformerRow {
+  id: string;
+  stage_name: string;
+  category: string;
+  city: string | null;
+  price_from: number | null;
+  verification_status: VerificationStatus;
+  rejection_reason: string | null;
+}
+
 function DashboardPage() {
   const { t } = useI18n();
   const { user, roles, loading } = useAuth();
   const navigate = useNavigate();
-  const [becoming, setBecoming] = useState(false);
+  const [performer, setPerformer] = useState<PerformerRow | null>(null);
+  const [perfLoading, setPerfLoading] = useState(true);
+  const [counts, setCounts] = useState({ incoming: 0, outgoing: 0 });
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth" });
   }, [loading, user, navigate]);
+
+  useEffect(() => {
+    if (!user) return;
+    setPerfLoading(true);
+    Promise.all([
+      supabase
+        .from("performers")
+        .select("id, stage_name, category, city, price_from, verification_status, rejection_reason")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+      supabase.from("bookings").select("id", { count: "exact", head: true }).eq("client_id", user.id),
+    ]).then(async ([{ data: p }, { count: outgoing }]) => {
+      setPerformer((p as PerformerRow | null) ?? null);
+      let incoming = 0;
+      if (p) {
+        const { count } = await supabase
+          .from("bookings")
+          .select("id", { count: "exact", head: true })
+          .eq("performer_id", p.id);
+        incoming = count ?? 0;
+      }
+      setCounts({ incoming, outgoing: outgoing ?? 0 });
+      setPerfLoading(false);
+    });
+  }, [user]);
 
   if (loading || !user) {
     return (
@@ -37,23 +74,9 @@ function DashboardPage() {
 
   const role: AppRole = roles.includes("admin")
     ? "admin"
-    : roles.includes("performer")
+    : roles.includes("performer") || performer
       ? "performer"
       : "client";
-
-  const becomePerformer = async () => {
-    setBecoming(true);
-    const { error } = await supabase
-      .from("user_roles")
-      .insert({ user_id: user.id, role: "performer" });
-    setBecoming(false);
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success(t("dash.becamePerformer"));
-      window.location.reload();
-    }
-  };
 
   return (
     <div className="container mx-auto px-4 py-16 md:px-8 md:py-20">
@@ -75,12 +98,23 @@ function DashboardPage() {
         </div>
 
         <div className="mt-10 grid gap-5 md:grid-cols-3">
-          <StatCard icon={Calendar} label={t("dash.bookings")} value="0" hint={t("common.soon")} />
-          <StatCard icon={MessageCircle} label={t("dash.messages")} value="0" hint={t("common.soon")} />
+          <StatCard
+            icon={Calendar}
+            label={t("dash.outgoingBookings")}
+            value={String(counts.outgoing)}
+            href="/bookings"
+          />
+          <StatCard
+            icon={MessageCircle}
+            label={t("dash.incomingBookings")}
+            value={String(counts.incoming)}
+            href={performer ? "/bookings" : undefined}
+          />
           <StatCard icon={Star} label={t("dash.favorites")} value="0" hint={t("common.soon")} />
         </div>
 
-        {role === "client" && (
+        {/* No performer profile yet */}
+        {role === "client" && !performer && (
           <div className="mt-10 card-luxe rounded-2xl p-8">
             <div className="flex flex-wrap items-start justify-between gap-6">
               <div className="max-w-xl">
@@ -89,31 +123,52 @@ function DashboardPage() {
                 </h2>
                 <p className="mt-2 text-sm text-muted-foreground">{t("dash.becomeDesc")}</p>
               </div>
-              <Button variant="luxe" size="lg" onClick={becomePerformer} disabled={becoming}>
-                <Plus className="h-4 w-4" />
-                {becoming ? "…" : t("dash.becomeCta")}
+              <Button asChild variant="luxe" size="lg">
+                <Link to="/performer/apply">
+                  <Plus className="h-4 w-4" />
+                  {t("dash.becomeCta")}
+                </Link>
               </Button>
             </div>
           </div>
         )}
 
-        {role === "performer" && (
-          <div className="mt-10 card-luxe rounded-2xl p-8">
-            <h2 className="font-display text-2xl font-semibold text-foreground">
-              {t("dash.performerTitle")}
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{t("dash.performerDesc")}</p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Button variant="luxe">
-                <Sparkles className="h-4 w-4" />
-                {t("dash.editProfile")}
-              </Button>
-              <Button asChild variant="outlineGold">
-                <Link to="/catalog">
-                  {t("dash.viewCatalog")}
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
+        {/* Has performer profile — show verification timeline */}
+        {performer && (
+          <div className="mt-10 grid gap-5 md:grid-cols-2">
+            <VerificationTimeline
+              status={performer.verification_status}
+              rejectionReason={performer.rejection_reason}
+            />
+            <div className="card-luxe rounded-2xl p-6">
+              <div className="text-xs uppercase tracking-[0.2em] text-primary">
+                {t("dash.yourProfile")}
+              </div>
+              <h3 className="mt-1 font-display text-2xl font-semibold text-foreground">
+                {performer.stage_name}
+              </h3>
+              <div className="mt-3 space-y-1 text-sm text-muted-foreground">
+                <div>{t(`cat.${performer.category}`)} · {performer.city}</div>
+                <div>
+                  {t("catalog.from")}{" "}
+                  <span className="font-semibold text-foreground">
+                    ${performer.price_from?.toLocaleString("en-US")}
+                  </span>
+                </div>
+              </div>
+              {performer.verification_status === "rejected" && (
+                <Button asChild variant="luxe" className="mt-6">
+                  <Link to="/performer/apply">{t("dash.reapply")}</Link>
+                </Button>
+              )}
+              {performer.verification_status === "approved" && (
+                <Button asChild variant="outlineGold" className="mt-6">
+                  <Link to="/bookings">
+                    {t("dash.openBookings")}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
         )}
@@ -141,6 +196,12 @@ function DashboardPage() {
             </div>
           </div>
         )}
+
+        {perfLoading && (
+          <div className="mt-10 flex items-center justify-center text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -157,14 +218,16 @@ function StatCard({
   label,
   value,
   hint,
+  href,
 }: {
   icon: typeof Calendar;
   label: string;
   value: string;
   hint?: string;
+  href?: string;
 }) {
-  return (
-    <div className="card-luxe rounded-2xl p-6">
+  const inner = (
+    <div className="card-luxe rounded-2xl p-6 transition-transform hover:-translate-y-0.5">
       <div className="flex items-center justify-between">
         <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
           <Icon className="h-4.5 w-4.5" />
@@ -179,4 +242,12 @@ function StatCard({
       <div className="mt-1 text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
     </div>
   );
+  if (href) {
+    return (
+      <Link to={href} className="block">
+        {inner}
+      </Link>
+    );
+  }
+  return inner;
 }

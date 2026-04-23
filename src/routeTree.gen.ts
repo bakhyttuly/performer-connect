@@ -12,9 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CatalogRouteImport } from './routes/catalog'
+import { Route as BookingsRouteImport } from './routes/bookings'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PerformerApplyRouteImport } from './routes/performer.apply'
 import { Route as PerformerIdRouteImport } from './routes/performer.$id'
 
 const HowItWorksRoute = HowItWorksRouteImport.update({
@@ -32,6 +34,11 @@ const CatalogRoute = CatalogRouteImport.update({
   path: '/catalog',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookingsRoute = BookingsRouteImport.update({
+  id: '/bookings',
+  path: '/bookings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -47,6 +54,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PerformerApplyRoute = PerformerApplyRouteImport.update({
+  id: '/performer/apply',
+  path: '/performer/apply',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PerformerIdRoute = PerformerIdRouteImport.update({
   id: '/performer/$id',
   path: '/performer/$id',
@@ -57,29 +69,35 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/bookings': typeof BookingsRoute
   '/catalog': typeof CatalogRoute
   '/dashboard': typeof DashboardRoute
   '/how-it-works': typeof HowItWorksRoute
   '/performer/$id': typeof PerformerIdRoute
+  '/performer/apply': typeof PerformerApplyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/bookings': typeof BookingsRoute
   '/catalog': typeof CatalogRoute
   '/dashboard': typeof DashboardRoute
   '/how-it-works': typeof HowItWorksRoute
   '/performer/$id': typeof PerformerIdRoute
+  '/performer/apply': typeof PerformerApplyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/bookings': typeof BookingsRoute
   '/catalog': typeof CatalogRoute
   '/dashboard': typeof DashboardRoute
   '/how-it-works': typeof HowItWorksRoute
   '/performer/$id': typeof PerformerIdRoute
+  '/performer/apply': typeof PerformerApplyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -87,38 +105,46 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/auth'
+    | '/bookings'
     | '/catalog'
     | '/dashboard'
     | '/how-it-works'
     | '/performer/$id'
+    | '/performer/apply'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
     | '/auth'
+    | '/bookings'
     | '/catalog'
     | '/dashboard'
     | '/how-it-works'
     | '/performer/$id'
+    | '/performer/apply'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/auth'
+    | '/bookings'
     | '/catalog'
     | '/dashboard'
     | '/how-it-works'
     | '/performer/$id'
+    | '/performer/apply'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
+  BookingsRoute: typeof BookingsRoute
   CatalogRoute: typeof CatalogRoute
   DashboardRoute: typeof DashboardRoute
   HowItWorksRoute: typeof HowItWorksRoute
   PerformerIdRoute: typeof PerformerIdRoute
+  PerformerApplyRoute: typeof PerformerApplyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -144,6 +170,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CatalogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bookings': {
+      id: '/bookings'
+      path: '/bookings'
+      fullPath: '/bookings'
+      preLoaderRoute: typeof BookingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -165,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/performer/apply': {
+      id: '/performer/apply'
+      path: '/performer/apply'
+      fullPath: '/performer/apply'
+      preLoaderRoute: typeof PerformerApplyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/performer/$id': {
       id: '/performer/$id'
       path: '/performer/$id'
@@ -179,10 +219,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
+  BookingsRoute: BookingsRoute,
   CatalogRoute: CatalogRoute,
   DashboardRoute: DashboardRoute,
   HowItWorksRoute: HowItWorksRoute,
   PerformerIdRoute: PerformerIdRoute,
+  PerformerApplyRoute: PerformerApplyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

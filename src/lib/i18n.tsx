@@ -130,6 +130,83 @@ const dict: Dict = {
   "admin.granted": { ru: "Роль назначена", en: "Role granted" },
   "admin.revoked": { ru: "Роль снята", en: "Role revoked" },
   "admin.empty": { ru: "Пользователей пока нет", en: "No users yet" },
+  "admin.tab.queue": { ru: "Заявки", en: "Queue" },
+  "admin.tab.users": { ru: "Пользователи", en: "Users" },
+  "admin.pending": { ru: "На модерации", en: "Pending review" },
+  "admin.approved": { ru: "Одобрено", en: "Approved" },
+  "admin.rejected": { ru: "Отклонено", en: "Rejected" },
+  "admin.approve": { ru: "Одобрить", en: "Approve" },
+  "admin.reject": { ru: "Отклонить", en: "Reject" },
+  "admin.rejectPrompt": { ru: "Укажите причину отклонения:", en: "Reason for rejection:" },
+  "admin.verify.approved": { ru: "Артист одобрен и опубликован", en: "Performer approved and published" },
+  "admin.verify.rejected": { ru: "Заявка отклонена", en: "Application rejected" },
+  "admin.verify.pending": { ru: "Возвращено на модерацию", en: "Returned to pending" },
+
+  // Verification timeline
+  "verify.statusLabel": { ru: "Статус верификации", en: "Verification status" },
+  "verify.status.pending": { ru: "На рассмотрении", en: "Under review" },
+  "verify.status.approved": { ru: "Верифицирован", en: "Verified" },
+  "verify.status.rejected": { ru: "Отклонено", en: "Rejected" },
+  "verify.rejectedNoReason": { ru: "Свяжитесь с поддержкой EPBMS для деталей.", en: "Contact EPBMS support for details." },
+  "verify.step.pending.title": { ru: "Заявка отправлена", en: "Application submitted" },
+  "verify.step.pending.desc": { ru: "Команда EPBMS проверит данные за 24–48 часов.", en: "EPBMS team will review within 24–48 hours." },
+  "verify.step.approved.title": { ru: "Верификация одобрена", en: "Verification approved" },
+  "verify.step.approved.desc": { ru: "Профиль опубликован в каталоге.", en: "Profile is live in the catalog." },
+
+  // Apply
+  "apply.eyebrow": { ru: "Заявка артиста", en: "Performer application" },
+  "apply.title": { ru: "Стать исполнителем EPBMS", en: "Become an EPBMS performer" },
+  "apply.subtitle": { ru: "Расскажите о себе. После верификации профиль появится в каталоге.", en: "Tell us about yourself. Your profile goes live after verification." },
+  "apply.stageName": { ru: "Сценическое имя", en: "Stage name" },
+  "apply.category": { ru: "Категория", en: "Category" },
+  "apply.city": { ru: "Город", en: "City" },
+  "apply.tagline": { ru: "Краткое описание", en: "Tagline" },
+  "apply.taglinePh": { ru: "Например: Джазовая дива с мировым репертуаром", en: "e.g. Jazz diva with a worldwide repertoire" },
+  "apply.description": { ru: "О себе", en: "About you" },
+  "apply.descriptionPh": { ru: "Опыт, ключевые проекты, репертуар…", en: "Experience, signature projects, repertoire…" },
+  "apply.priceFrom": { ru: "Минимальная цена", en: "Starting price" },
+  "apply.submit": { ru: "Отправить на верификацию", en: "Submit for verification" },
+  "apply.submitted": { ru: "Заявка отправлена! Мы свяжемся в течение 24–48 часов.", en: "Application sent! We'll get back within 24–48 hours." },
+
+  // Dashboard extras
+  "dash.outgoingBookings": { ru: "Мои бронирования", en: "My bookings" },
+  "dash.incomingBookings": { ru: "Входящие", en: "Incoming" },
+  "dash.yourProfile": { ru: "Ваш профиль", en: "Your profile" },
+  "dash.openBookings": { ru: "Открыть бронирования", en: "Open bookings" },
+  "dash.reapply": { ru: "Подать заново", en: "Re-apply" },
+
+  // Booking
+  "nav.bookings": { ru: "Бронирования", en: "Bookings" },
+  "booking.title": { ru: "Запрос на бронирование", en: "Booking request" },
+  "booking.subtitle": { ru: "Отправить запрос артисту", en: "Send a request to" },
+  "booking.date": { ru: "Дата события", en: "Event date" },
+  "booking.location": { ru: "Локация", en: "Location" },
+  "booking.budget": { ru: "Бюджет", en: "Budget" },
+  "booking.message": { ru: "Сообщение", en: "Message" },
+  "booking.send": { ru: "Отправить запрос", en: "Send request" },
+  "booking.sent": { ru: "Запрос отправлен!", en: "Request sent!" },
+  "booking.demoOnly": {
+    ru: "Это демо-артист — бронирование доступно только для верифицированных исполнителей.",
+    en: "This is a showcase artist — booking is available for verified performers only.",
+  },
+  "booking.signInRequired": { ru: "Войдите, чтобы забронировать", en: "Sign in to book" },
+
+  // My bookings
+  "bookings.title": { ru: "Бронирования", en: "Bookings" },
+  "bookings.heading": { ru: "Мои бронирования", en: "My bookings" },
+  "bookings.tab.client": { ru: "Я заказчик", en: "As client" },
+  "bookings.tab.performer": { ru: "Я исполнитель", en: "As performer" },
+  "bookings.empty": { ru: "Бронирований пока нет", en: "No bookings yet" },
+  "bookings.cancel": { ru: "Отменить", en: "Cancel" },
+  "bookings.accept": { ru: "Принять", en: "Accept" },
+  "bookings.decline": { ru: "Отклонить", en: "Decline" },
+  "bookings.markCompleted": { ru: "Отметить выполненным", en: "Mark completed" },
+  "bookings.updated": { ru: "Бронирование обновлено", en: "Booking updated" },
+  "bookings.status.pending": { ru: "Ожидает", en: "Pending" },
+  "bookings.status.accepted": { ru: "Принято", en: "Accepted" },
+  "bookings.status.declined": { ru: "Отклонено", en: "Declined" },
+  "bookings.status.completed": { ru: "Выполнено", en: "Completed" },
+  "bookings.status.cancelled": { ru: "Отменено", en: "Cancelled" },
 
   // Footer
   "footer.rights": { ru: "Все права защищены", en: "All rights reserved" },
@@ -138,6 +215,7 @@ const dict: Dict = {
   // Misc
   "common.soon": { ru: "Скоро", en: "Soon" },
   "common.loading": { ru: "Загрузка…", en: "Loading…" },
+  "common.cancel": { ru: "Отмена", en: "Cancel" },
 };
 
 interface I18nCtx {
