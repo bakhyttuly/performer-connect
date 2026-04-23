@@ -109,7 +109,7 @@ function PerformerPage() {
             </h2>
             <div className="gold-divider mt-3" />
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              {performer.gallery.map((src, i) => (
+              {performer.gallery.map((src: string, i: number) => (
                 <div
                   key={i}
                   className="overflow-hidden rounded-xl border border-border/40"
