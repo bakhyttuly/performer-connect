@@ -1,13 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Calendar, MapPin, MessageCircle, Loader2, Inbox } from "lucide-react";
+import { Calendar, MapPin, MessageCircle, Loader2, Inbox, ChevronDown, ChevronUp } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/mock-data";
+import { BookingChat } from "@/components/booking-chat";
 
 type BookingStatus = "pending" | "accepted" | "declined" | "completed" | "cancelled";
 
@@ -41,6 +42,7 @@ function BookingsPage() {
   const [bookings, setBookings] = useState<BookingRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"client" | "performer">("client");
+  const [openChatId, setOpenChatId] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -50,7 +52,6 @@ function BookingsPage() {
   const load = async () => {
     if (!user) return;
     setLoading(true);
-    // Two queries: as client / as performer
     const [{ data: asClient }, { data: ownPerf }] = await Promise.all([
       supabase
         .from("bookings")
@@ -82,6 +83,7 @@ function BookingsPage() {
 
   useEffect(() => {
     if (user) load();
+    setOpenChatId(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, tab]);
 
@@ -149,66 +151,98 @@ function BookingsPage() {
               </Button>
             </div>
           ) : (
-            bookings.map((b) => (
-              <div key={b.id} className="card-luxe rounded-2xl p-6">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <div className="font-display text-lg font-semibold text-foreground">
-                      {b.performer_name}
-                    </div>
-                    <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                      <span className="inline-flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5" />
-                        {new Date(b.event_date).toLocaleDateString(lang === "ru" ? "ru-RU" : "en-US")}
-                      </span>
-                      <span className="inline-flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5" />
-                        {b.location}
-                      </span>
-                      {b.budget && (
-                        <span>
-                          {t("catalog.from")}{" "}
-                          <span className="font-semibold text-foreground">
-                            ${formatPrice(b.budget)}
-                          </span>
+            bookings.map((b) => {
+              const chatOpen = openChatId === b.id;
+              const chatLocked = b.status === "declined" || b.status === "cancelled";
+              return (
+                <div key={b.id} className="card-luxe rounded-2xl p-6">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <div className="font-display text-lg font-semibold text-foreground">
+                        {b.performer_name}
+                      </div>
+                      <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Calendar className="h-3.5 w-3.5" />
+                          {new Date(b.event_date).toLocaleDateString(lang === "ru" ? "ru-RU" : "en-US")}
                         </span>
+                        <span className="inline-flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5" />
+                          {b.location}
+                        </span>
+                        {b.budget && (
+                          <span>
+                            {t("catalog.from")}{" "}
+                            <span className="font-semibold text-foreground">
+                              ${formatPrice(b.budget)}
+                            </span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <BookingStatusBadge status={b.status} />
+                  </div>
+
+                  {b.message && (
+                    <p className="mt-4 rounded-xl bg-muted/40 p-3 text-sm text-muted-foreground">
+                      <MessageCircle className="mr-1.5 inline h-3.5 w-3.5" />
+                      {b.message}
+                    </p>
+                  )}
+
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setOpenChatId(chatOpen ? null : b.id)}
+                      disabled={chatLocked}
+                      className="gap-1.5"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      {chatOpen ? t("chat.close") : t("chat.open")}
+                      {chatOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                    </Button>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      {tab === "client" && b.status === "pending" && (
+                        <Button variant="ghost" size="sm" onClick={() => updateStatus(b.id, "cancelled")}>
+                          {t("bookings.cancel")}
+                        </Button>
+                      )}
+                      {tab === "performer" && b.status === "pending" && (
+                        <>
+                          <Button variant="ghost" size="sm" onClick={() => updateStatus(b.id, "declined")}>
+                            {t("bookings.decline")}
+                          </Button>
+                          <Button variant="luxe" size="sm" onClick={() => updateStatus(b.id, "accepted")}>
+                            {t("bookings.accept")}
+                          </Button>
+                        </>
+                      )}
+                      {tab === "performer" && b.status === "accepted" && (
+                        <Button variant="luxe" size="sm" onClick={() => updateStatus(b.id, "completed")}>
+                          {t("bookings.markCompleted")}
+                        </Button>
                       )}
                     </div>
                   </div>
-                  <BookingStatusBadge status={b.status} />
-                </div>
 
-                {b.message && (
-                  <p className="mt-4 rounded-xl bg-muted/40 p-3 text-sm text-muted-foreground">
-                    <MessageCircle className="mr-1.5 inline h-3.5 w-3.5" />
-                    {b.message}
-                  </p>
-                )}
-
-                <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
-                  {tab === "client" && b.status === "pending" && (
-                    <Button variant="ghost" size="sm" onClick={() => updateStatus(b.id, "cancelled")}>
-                      {t("bookings.cancel")}
-                    </Button>
-                  )}
-                  {tab === "performer" && b.status === "pending" && (
-                    <>
-                      <Button variant="ghost" size="sm" onClick={() => updateStatus(b.id, "declined")}>
-                        {t("bookings.decline")}
-                      </Button>
-                      <Button variant="luxe" size="sm" onClick={() => updateStatus(b.id, "accepted")}>
-                        {t("bookings.accept")}
-                      </Button>
-                    </>
-                  )}
-                  {tab === "performer" && b.status === "accepted" && (
-                    <Button variant="luxe" size="sm" onClick={() => updateStatus(b.id, "completed")}>
-                      {t("bookings.markCompleted")}
-                    </Button>
+                  {chatOpen && !chatLocked && (
+                    <div className="mt-4 border-t border-border/40 pt-4">
+                      <div className="text-xs uppercase tracking-[0.2em] text-primary">
+                        {t("chat.title")}
+                      </div>
+                      <div className="mt-3 h-[420px]">
+                        <BookingChat
+                          bookingId={b.id}
+                          counterpartyName={b.performer_name}
+                        />
+                      </div>
+                    </div>
                   )}
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>
