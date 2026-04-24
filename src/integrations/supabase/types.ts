@@ -50,8 +50,12 @@ export type Database = {
         Row: {
           budget: number | null
           client_id: string
+          contact_name: string | null
+          contact_phone: string | null
           created_at: string
           event_date: string
+          event_type: string | null
+          guests_count: number | null
           id: string
           location: string
           message: string | null
@@ -62,8 +66,12 @@ export type Database = {
         Insert: {
           budget?: number | null
           client_id: string
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string
           event_date: string
+          event_type?: string | null
+          guests_count?: number | null
           id?: string
           location: string
           message?: string | null
@@ -74,8 +82,12 @@ export type Database = {
         Update: {
           budget?: number | null
           client_id?: string
+          contact_name?: string | null
+          contact_phone?: string | null
           created_at?: string
           event_date?: string
+          event_type?: string | null
+          guests_count?: number | null
           id?: string
           location?: string
           message?: string | null
@@ -255,6 +267,7 @@ export type Database = {
       }
       reviews: {
         Row: {
+          booking_id: string | null
           client_id: string
           created_at: string
           id: string
@@ -263,6 +276,7 @@ export type Database = {
           text: string | null
         }
         Insert: {
+          booking_id?: string | null
           client_id: string
           created_at?: string
           id?: string
@@ -271,6 +285,7 @@ export type Database = {
           text?: string | null
         }
         Update: {
+          booking_id?: string | null
           client_id?: string
           created_at?: string
           id?: string
