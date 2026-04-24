@@ -1,7 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Calendar, MapPin, MessageCircle, Loader2, Inbox, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  MessageCircle,
+  Loader2,
+  Inbox,
+  ChevronDown,
+  ChevronUp,
+  Users,
+  Phone,
+  User as UserIcon,
+} from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/mock-data";
 import { BookingChat } from "@/components/booking-chat";
+import { ReviewDialog } from "@/components/review-dialog";
 
 type BookingStatus = "pending" | "accepted" | "declined" | "completed" | "cancelled";
 
