@@ -49,7 +49,11 @@ export const Route = createRootRoute({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "EPBMS — Elite Performer Booking" },
-      { name: "twitter:description", content: "Premium platform to book verified artists for unforgettable events." },
+      { name: "twitter:description", content: "EPBMS is a premium web platform for finding and booking service providers, featuring verification, chat, and reviews." },
+      { name: "description", content: "EPBMS is a premium web platform for finding and booking service providers, featuring verification, chat, and reviews." },
+      { property: "og:description", content: "EPBMS is a premium web platform for finding and booking service providers, featuring verification, chat, and reviews." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3cd3b215-9d6e-4532-a505-0bd64d2df76e/id-preview-f99b00eb--d8f89094-8e46-425b-9c0f-4e236cf96d61.lovable.app-1777001646775.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3cd3b215-9d6e-4532-a505-0bd64d2df76e/id-preview-f99b00eb--d8f89094-8e46-425b-9c0f-4e236cf96d61.lovable.app-1777001646775.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
