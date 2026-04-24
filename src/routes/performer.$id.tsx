@@ -1,6 +1,16 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState } from "react";
-import { Star, MapPin, BadgeCheck, MessageCircle, ArrowLeft, Calendar as CalendarIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  Star,
+  MapPin,
+  BadgeCheck,
+  MessageCircle,
+  ArrowLeft,
+  Calendar as CalendarIcon,
+  Clock,
+  CheckCircle2,
+  Sparkles,
+} from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { mockPerformers, mockReviews, formatPrice } from "@/lib/mock-data";
@@ -25,6 +35,15 @@ interface LoadedPerformer {
   verified: boolean;
 }
 
+interface DbReview {
+  id: string;
+  rating: number;
+  text: string | null;
+  created_at: string;
+  client_id: string;
+  author_name?: string;
+}
+
 const fallbackGradients: Record<string, [string, string]> = {
   singer: ["#3a2410", "#0f0a06"],
   dj: ["#2a1c08", "#0a0805"],
@@ -37,14 +56,15 @@ const fallbackGradients: Record<string, [string, string]> = {
 export const Route = createFileRoute("/performer/$id")({
   loader: async ({ params }) => {
     const mockMatch = mockPerformers.find((p) => p.id === params.id);
-    if (mockMatch) return { performer: mockMatch as LoadedPerformer };
+    if (mockMatch) return { performer: mockMatch as LoadedPerformer, isUuid: false };
 
-    // Try DB by UUID
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(params.id);
     if (!isUuid) throw notFound();
     const { data } = await supabase
       .from("performers")
-      .select("id, stage_name, category, tagline, description, city, price_from, rating, reviews_count, is_verified, is_published, verification_status")
+      .select(
+        "id, stage_name, category, tagline, description, city, price_from, rating, reviews_count, is_verified, is_published, verification_status",
+      )
       .eq("id", params.id)
       .maybeSingle();
     if (!data || data.verification_status !== "approved") throw notFound();
@@ -62,7 +82,7 @@ export const Route = createFileRoute("/performer/$id")({
       reviews_count: data.reviews_count ?? 0,
       verified: !!data.is_verified,
     };
-    return { performer };
+    return { performer, isUuid: true };
   },
   notFoundComponent: NotFound,
   component: PerformerPage,
@@ -82,12 +102,61 @@ function NotFound() {
 
 function PerformerPage() {
   const { t, lang } = useI18n();
-  const { performer } = Route.useLoaderData();
-  const reviews = mockReviews.filter((r) => r.performerId === performer.id);
+  const { performer, isUuid } = Route.useLoaderData();
+  const mockReviewsForPerformer = mockReviews.filter((r) => r.performerId === performer.id);
 
   const [pickedDate, setPickedDate] = useState<string | null>(null);
   const [pickedSlot, setPickedSlot] = useState<string | null>(null);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [dbReviews, setDbReviews] = useState<DbReview[]>([]);
+  const [completedCount, setCompletedCount] = useState<number | null>(null);
+
+  // Load real reviews + completed bookings count for UUID-based performers
+  useEffect(() => {
+    if (!isUuid) return;
+    let cancelled = false;
+    (async () => {
+      const [{ data: reviews }, { count }] = await Promise.all([
+        supabase
+          .from("reviews")
+          .select("id, rating, text, created_at, client_id")
+          .eq("performer_id", performer.id)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("bookings")
+          .select("id", { count: "exact", head: true })
+          .eq("performer_id", performer.id)
+          .eq("status", "completed"),
+      ]);
+      if (cancelled) return;
+      const ids = Array.from(new Set((reviews ?? []).map((r) => r.client_id)));
+      let nameMap = new Map<string, string>();
+      if (ids.length > 0) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("id, full_name")
+          .in("id", ids);
+        nameMap = new Map((profs ?? []).map((p) => [p.id, p.full_name ?? "—"]));
+      }
+      setDbReviews(
+        (reviews ?? []).map((r) => ({
+          ...r,
+          author_name: nameMap.get(r.client_id) ?? "Guest",
+        })),
+      );
+      setCompletedCount(count ?? 0);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isUuid, performer.id]);
+
+  const includes = [
+    t("profile.includes.1"),
+    t("profile.includes.2"),
+    t("profile.includes.3"),
+    t("profile.includes.4"),
+  ];
 
   return (
     <div>
@@ -111,22 +180,25 @@ function PerformerPage() {
           </Link>
 
           <div className="absolute bottom-10 left-4 right-4 md:left-8 md:right-8">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-primary">
-              {t(`cat.${performer.category}`)}
+            <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.2em] text-primary">
+              <span>{t(`cat.${performer.category}`)}</span>
               {performer.verified && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2 py-0.5 text-primary">
                   <BadgeCheck className="h-3 w-3" /> {t("catalog.verified")}
                 </span>
               )}
+              <span className="hidden items-center gap-1 rounded-full bg-foreground/10 px-2 py-0.5 text-foreground/80 sm:inline-flex">
+                <Sparkles className="h-3 w-3" /> {t("profile.heroBadge")}
+              </span>
             </div>
-            <h1 className="mt-3 font-display text-5xl font-semibold leading-tight text-foreground md:text-7xl">
+            <h1 className="mt-3 font-display text-4xl font-semibold leading-tight text-foreground sm:text-5xl md:text-7xl">
               {performer.stage_name}
             </h1>
-            <p className="mt-2 max-w-2xl text-lg text-muted-foreground">
+            <p className="mt-2 max-w-2xl text-base text-muted-foreground sm:text-lg">
               {performer.tagline[lang]}
             </p>
 
-            <div className="mt-6 flex flex-wrap items-center gap-4 text-sm">
+            <div className="mt-6 flex flex-wrap items-center gap-3 text-sm sm:gap-4">
               <div className="flex items-center gap-1.5 rounded-md bg-primary/10 px-2.5 py-1 text-primary">
                 <Star className="h-3.5 w-3.5 fill-primary" />
                 <span className="font-semibold">{performer.rating.toFixed(2)}</span>
@@ -160,6 +232,25 @@ function PerformerPage() {
             </p>
           </div>
 
+          {/* What's included */}
+          <div>
+            <h2 className="font-display text-2xl font-semibold text-foreground">
+              {t("profile.includes.title")}
+            </h2>
+            <div className="gold-divider mt-3" />
+            <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+              {includes.map((line) => (
+                <li
+                  key={line}
+                  className="flex items-start gap-3 rounded-xl border border-border/40 bg-muted/20 p-4"
+                >
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <span className="text-sm text-foreground/85">{line}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           <div>
             <h2 className="font-display text-2xl font-semibold text-foreground">
               {t("avail.title")}
@@ -176,17 +267,19 @@ function PerformerPage() {
                   setPickedSlot(s);
                 }}
               />
-              <div className="mt-5 flex items-center justify-between gap-3">
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
                 <div className="text-sm text-muted-foreground">
                   {pickedDate ? (
                     <>
                       <span className="font-medium text-foreground">
-                        {new Date(pickedDate).toLocaleDateString(lang === "ru" ? "ru-RU" : "en-US", {
-                          day: "2-digit",
-                          month: "long",
-                        })}
+                        {new Date(pickedDate).toLocaleDateString(
+                          lang === "ru" ? "ru-RU" : "en-US",
+                          { day: "2-digit", month: "long" },
+                        )}
                       </span>
-                      {pickedSlot && <span className="ml-2 text-primary">· {pickedSlot}</span>}
+                      {pickedSlot && (
+                        <span className="ml-2 text-primary">· {pickedSlot}</span>
+                      )}
                     </>
                   ) : (
                     t("avail.pickDate")
@@ -210,21 +303,23 @@ function PerformerPage() {
             </h2>
             <div className="gold-divider mt-3" />
             <div className="mt-6 space-y-4">
-              {reviews.length === 0 && (
-                <div className="rounded-xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
-                  —
-                </div>
-              )}
-              {reviews.map((r) => (
+              {/* Real DB reviews first */}
+              {dbReviews.map((r) => (
                 <div key={r.id} className="card-luxe rounded-xl p-5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="grid h-10 w-10 place-items-center rounded-full bg-[image:var(--gradient-gold)] text-sm font-semibold text-primary-foreground">
-                        {r.author.charAt(0)}
+                        {(r.author_name ?? "G").charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-foreground">{r.author}</div>
-                        <div className="text-xs text-muted-foreground">{r.date}</div>
+                        <div className="text-sm font-medium text-foreground">
+                          {r.author_name}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {new Date(r.created_at).toLocaleDateString(
+                            lang === "ru" ? "ru-RU" : "en-US",
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-0.5 text-primary">
@@ -233,11 +328,47 @@ function PerformerPage() {
                       ))}
                     </div>
                   </div>
-                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-                    {r.text[lang]}
-                  </p>
+                  {r.text && (
+                    <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                      {r.text}
+                    </p>
+                  )}
                 </div>
               ))}
+
+              {/* Mock reviews shown only when no real ones (e.g., demo performers) */}
+              {dbReviews.length === 0 &&
+                mockReviewsForPerformer.map((r) => (
+                  <div key={r.id} className="card-luxe rounded-xl p-5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="grid h-10 w-10 place-items-center rounded-full bg-[image:var(--gradient-gold)] text-sm font-semibold text-primary-foreground">
+                          {r.author.charAt(0)}
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-foreground">
+                            {r.author}
+                          </div>
+                          <div className="text-xs text-muted-foreground">{r.date}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-0.5 text-primary">
+                        {Array.from({ length: r.rating }).map((_, i) => (
+                          <Star key={i} className="h-3.5 w-3.5 fill-primary" />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                      {r.text[lang]}
+                    </p>
+                  </div>
+                ))}
+
+              {dbReviews.length === 0 && mockReviewsForPerformer.length === 0 && (
+                <div className="rounded-xl border border-dashed border-border/60 p-8 text-center text-sm text-muted-foreground">
+                  —
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -251,7 +382,9 @@ function PerformerPage() {
             <div className="mt-1 font-display text-4xl font-semibold text-gradient-gold">
               ${formatPrice(performer.price_from)}
             </div>
-            <div className="mt-1 text-xs text-muted-foreground">USD · {performer.city[lang]}</div>
+            <div className="mt-1 text-xs text-muted-foreground">
+              USD · {performer.city[lang]}
+            </div>
 
             <div className="mt-6 space-y-2">
               <BookingDialog
@@ -278,7 +411,28 @@ function PerformerPage() {
               </Button>
             </div>
 
-            <div className="mt-6 border-t border-border/40 pt-4 text-xs text-muted-foreground">
+            <div className="mt-6 grid grid-cols-2 gap-3 border-t border-border/40 pt-5 text-xs">
+              <div>
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                  <Clock className="h-3.5 w-3.5 text-primary" />
+                  {t("profile.responseTime")}
+                </div>
+                <div className="mt-1 font-medium text-foreground">
+                  {t("profile.responseValue")}
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+                  {t("profile.completed")}
+                </div>
+                <div className="mt-1 font-medium text-foreground">
+                  {completedCount ?? performer.reviews_count}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 border-t border-border/40 pt-4 text-xs text-muted-foreground">
               <div className="flex items-center gap-2">
                 <BadgeCheck className="h-3.5 w-3.5 text-primary" />
                 {t("catalog.verified")} EPBMS
@@ -287,6 +441,31 @@ function PerformerPage() {
           </div>
         </aside>
       </section>
+
+      {/* Mobile sticky CTA */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border/50 bg-background/95 px-4 py-3 backdrop-blur md:hidden">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              {t("catalog.from")}
+            </div>
+            <div className="font-display text-xl font-semibold text-gradient-gold">
+              ${formatPrice(performer.price_from)}
+            </div>
+          </div>
+          <Button
+            variant="luxe"
+            size="lg"
+            className="flex-1"
+            onClick={() => setBookingOpen(true)}
+          >
+            <CalendarIcon className="h-4 w-4" />
+            {t("profile.book")}
+          </Button>
+        </div>
+      </div>
+      {/* Spacer so sticky CTA doesn't cover content on mobile */}
+      <div className="h-20 md:hidden" />
     </div>
   );
 }
