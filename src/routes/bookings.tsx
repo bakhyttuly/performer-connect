@@ -68,10 +68,12 @@ function BookingsPage() {
   const load = async () => {
     if (!user) return;
     setLoading(true);
+    const sel =
+      "id, performer_id, client_id, event_date, location, budget, message, status, created_at, event_type, guests_count, contact_name, contact_phone, performers(stage_name)";
     const [{ data: asClient }, { data: ownPerf }] = await Promise.all([
       supabase
         .from("bookings")
-        .select("id, performer_id, client_id, event_date, location, budget, message, status, created_at, performers(stage_name)")
+        .select(sel)
         .eq("client_id", user.id)
         .order("created_at", { ascending: false }),
       supabase.from("performers").select("id, stage_name").eq("user_id", user.id).maybeSingle(),
@@ -81,7 +83,7 @@ function BookingsPage() {
     if (ownPerf) {
       const { data } = await supabase
         .from("bookings")
-        .select("id, performer_id, client_id, event_date, location, budget, message, status, created_at, performers(stage_name)")
+        .select(sel)
         .eq("performer_id", ownPerf.id)
         .order("created_at", { ascending: false });
       asPerformer = data ?? [];
