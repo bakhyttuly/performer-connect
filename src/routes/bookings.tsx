@@ -34,6 +34,10 @@ interface BookingRow {
   message: string | null;
   status: BookingStatus;
   created_at: string;
+  event_type: string | null;
+  guests_count: number | null;
+  contact_name: string | null;
+  contact_phone: string | null;
   performer_name?: string;
 }
 
