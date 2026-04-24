@@ -1,7 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Calendar, MapPin, MessageCircle, Loader2, Inbox, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  MessageCircle,
+  Loader2,
+  Inbox,
+  ChevronDown,
+  ChevronUp,
+  Users,
+  Phone,
+  User as UserIcon,
+} from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/mock-data";
 import { BookingChat } from "@/components/booking-chat";
+import { ReviewDialog } from "@/components/review-dialog";
 
 type BookingStatus = "pending" | "accepted" | "declined" | "completed" | "cancelled";
 
@@ -22,6 +34,10 @@ interface BookingRow {
   message: string | null;
   status: BookingStatus;
   created_at: string;
+  event_type: string | null;
+  guests_count: number | null;
+  contact_name: string | null;
+  contact_phone: string | null;
   performer_name?: string;
 }
 
@@ -52,10 +68,12 @@ function BookingsPage() {
   const load = async () => {
     if (!user) return;
     setLoading(true);
+    const sel =
+      "id, performer_id, client_id, event_date, location, budget, message, status, created_at, event_type, guests_count, contact_name, contact_phone, performers(stage_name)";
     const [{ data: asClient }, { data: ownPerf }] = await Promise.all([
       supabase
         .from("bookings")
-        .select("id, performer_id, client_id, event_date, location, budget, message, status, created_at, performers(stage_name)")
+        .select(sel)
         .eq("client_id", user.id)
         .order("created_at", { ascending: false }),
       supabase.from("performers").select("id, stage_name").eq("user_id", user.id).maybeSingle(),
@@ -65,7 +83,7 @@ function BookingsPage() {
     if (ownPerf) {
       const { data } = await supabase
         .from("bookings")
-        .select("id, performer_id, client_id, event_date, location, budget, message, status, created_at, performers(stage_name)")
+        .select(sel)
         .eq("performer_id", ownPerf.id)
         .order("created_at", { ascending: false });
       asPerformer = data ?? [];
@@ -161,7 +179,7 @@ function BookingsPage() {
                       <div className="font-display text-lg font-semibold text-foreground">
                         {b.performer_name}
                       </div>
-                      <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
                         <span className="inline-flex items-center gap-1.5">
                           <Calendar className="h-3.5 w-3.5" />
                           {new Date(b.event_date).toLocaleDateString(lang === "ru" ? "ru-RU" : "en-US")}
@@ -170,6 +188,17 @@ function BookingsPage() {
                           <MapPin className="h-3.5 w-3.5" />
                           {b.location}
                         </span>
+                        {b.event_type && (
+                          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-primary">
+                            {b.event_type}
+                          </span>
+                        )}
+                        {b.guests_count != null && (
+                          <span className="inline-flex items-center gap-1.5">
+                            <Users className="h-3.5 w-3.5" />
+                            {b.guests_count}
+                          </span>
+                        )}
                         {b.budget && (
                           <span>
                             {t("catalog.from")}{" "}
@@ -182,6 +211,26 @@ function BookingsPage() {
                     </div>
                     <BookingStatusBadge status={b.status} />
                   </div>
+
+                  {(b.contact_name || b.contact_phone) && (
+                    <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                      {b.contact_name && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <UserIcon className="h-3.5 w-3.5 text-primary" />
+                          {b.contact_name}
+                        </span>
+                      )}
+                      {b.contact_phone && (
+                        <a
+                          href={`tel:${b.contact_phone}`}
+                          className="inline-flex items-center gap-1.5 hover:text-foreground"
+                        >
+                          <Phone className="h-3.5 w-3.5 text-primary" />
+                          {b.contact_phone}
+                        </a>
+                      )}
+                    </div>
+                  )}
 
                   {b.message && (
                     <p className="mt-4 rounded-xl bg-muted/40 p-3 text-sm text-muted-foreground">
@@ -223,6 +272,13 @@ function BookingsPage() {
                         <Button variant="luxe" size="sm" onClick={() => updateStatus(b.id, "completed")}>
                           {t("bookings.markCompleted")}
                         </Button>
+                      )}
+                      {tab === "client" && b.status === "completed" && (
+                        <ReviewDialog
+                          bookingId={b.id}
+                          performerId={b.performer_id}
+                          performerName={b.performer_name ?? "—"}
+                        />
                       )}
                     </div>
                   </div>

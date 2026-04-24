@@ -1,6 +1,15 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { toast } from "sonner";
-import { Calendar as CalendarIcon, MessageCircle, Loader2 } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  MessageCircle,
+  Loader2,
+  MapPin,
+  Users,
+  Phone,
+  User,
+  Wallet,
+} from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useI18n } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
@@ -24,17 +33,13 @@ import {
 interface Props {
   performerId: string;
   performerName: string;
-  /** Pre-selected date (YYYY-MM-DD) coming from the page calendar */
   initialDate?: string | null;
-  /** Pre-selected time slot like "20:00" */
   initialSlot?: string | null;
-  /** Render trigger? Set to false when the dialog is opened externally. */
   renderTrigger?: boolean;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
 
-/** Booking dialog — only works for real (UUID) performers. Otherwise shows a demo notice. */
 export function BookingDialog({
   performerId,
   performerName,
@@ -57,7 +62,6 @@ export function BookingDialog({
 
   const isRealPerformer = /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(performerId);
 
-  // Default date: 30 days from now (deterministic — set on mount only)
   const [defaultDate, setDefaultDate] = useState("");
   useEffect(() => {
     const d = new Date();
@@ -95,6 +99,10 @@ export function BookingDialog({
       performer_id: performerId,
       event_date: dateValue,
       location: form.get("location"),
+      event_type: form.get("event_type") || undefined,
+      guests_count: form.get("guests_count") || undefined,
+      contact_name: form.get("contact_name") || undefined,
+      contact_phone: form.get("contact_phone") || undefined,
       budget: form.get("budget") || undefined,
       message: composedMessage,
     });
@@ -108,6 +116,10 @@ export function BookingDialog({
       client_id: user.id,
       event_date: parsed.data.event_date,
       location: parsed.data.location,
+      event_type: parsed.data.event_type ?? null,
+      guests_count: parsed.data.guests_count ?? null,
+      contact_name: parsed.data.contact_name ?? null,
+      contact_phone: parsed.data.contact_phone ?? null,
       budget: parsed.data.budget,
       message: parsed.data.message,
     });
@@ -131,24 +143,29 @@ export function BookingDialog({
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="max-h-[92vh] max-w-md overflow-y-auto">
+      <DialogContent className="max-h-[92vh] max-w-lg overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display text-2xl">
             {t("booking.title")}
           </DialogTitle>
           <DialogDescription>
-            {t("booking.subtitle")} <span className="text-foreground">{performerName}</span>
+            {t("booking.subtitle")}{" "}
+            <span className="text-foreground">{performerName}</span>
           </DialogDescription>
         </DialogHeader>
 
         {!isRealPerformer ? (
           <div className="rounded-xl border border-dashed border-primary/40 bg-primary/5 p-6 text-center">
             <MessageCircle className="mx-auto h-6 w-6 text-primary" />
-            <p className="mt-3 text-sm text-muted-foreground">{t("booking.demoOnly")}</p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              {t("booking.demoOnly")}
+            </p>
           </div>
         ) : !user ? (
           <div className="rounded-xl border border-dashed border-border/60 p-6 text-center">
-            <p className="text-sm text-muted-foreground">{t("booking.signInRequired")}</p>
+            <p className="text-sm text-muted-foreground">
+              {t("booking.signInRequired")}
+            </p>
             <Button
               className="mt-4"
               variant="luxe"
@@ -158,39 +175,132 @@ export function BookingDialog({
             </Button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label>{t("booking.date")}</Label>
-              <div className="rounded-xl border border-border/40 p-3">
-                <AvailabilityCalendar
-                  performerId={performerId}
-                  value={pickedDate}
-                  slot={pickedSlot}
-                  onChange={(d, s) => {
-                    setPickedDate(d);
-                    setPickedSlot(s);
-                  }}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Section: event */}
+            <div className="space-y-3">
+              <div className="text-[11px] uppercase tracking-[0.18em] text-primary">
+                {t("booking.section.event")}
+              </div>
+              <div className="space-y-1.5">
+                <Label>{t("booking.date")}</Label>
+                <div className="rounded-xl border border-border/40 p-3">
+                  <AvailabilityCalendar
+                    performerId={performerId}
+                    value={pickedDate}
+                    slot={pickedSlot}
+                    onChange={(d, s) => {
+                      setPickedDate(d);
+                      setPickedSlot(s);
+                    }}
+                  />
+                </div>
+                <input
+                  type="hidden"
+                  name="event_date"
+                  value={pickedDate ?? defaultDate}
                 />
               </div>
-              {/* Hidden fallback for native form */}
-              <input
-                type="hidden"
-                name="event_date"
-                value={pickedDate ?? defaultDate}
-              />
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="event_type">
+                    <CalendarIcon className="mr-1 inline h-3.5 w-3.5 text-muted-foreground" />
+                    {t("booking.eventType")}
+                  </Label>
+                  <Input
+                    id="event_type"
+                    name="event_type"
+                    maxLength={80}
+                    placeholder={t("booking.eventTypePh")}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="guests_count">
+                    <Users className="mr-1 inline h-3.5 w-3.5 text-muted-foreground" />
+                    {t("booking.guests")}
+                  </Label>
+                  <Input
+                    id="guests_count"
+                    name="guests_count"
+                    type="number"
+                    min={1}
+                    step={1}
+                    placeholder="120"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="location">
+                  <MapPin className="mr-1 inline h-3.5 w-3.5 text-muted-foreground" />
+                  {t("booking.location")}
+                </Label>
+                <Input
+                  id="location"
+                  name="location"
+                  required
+                  minLength={2}
+                  maxLength={160}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="budget">
+                  <Wallet className="mr-1 inline h-3.5 w-3.5 text-muted-foreground" />
+                  {t("booking.budget")} (USD)
+                </Label>
+                <Input id="budget" name="budget" type="number" min={50} step={50} />
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="location">{t("booking.location")}</Label>
-              <Input id="location" name="location" required minLength={2} maxLength={160} />
+
+            {/* Section: contact */}
+            <div className="space-y-3 border-t border-border/30 pt-4">
+              <div className="text-[11px] uppercase tracking-[0.18em] text-primary">
+                {t("booking.section.contact")}
+              </div>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="contact_name">
+                    <User className="mr-1 inline h-3.5 w-3.5 text-muted-foreground" />
+                    {t("booking.contactName")}
+                  </Label>
+                  <Input id="contact_name" name="contact_name" maxLength={80} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="contact_phone">
+                    <Phone className="mr-1 inline h-3.5 w-3.5 text-muted-foreground" />
+                    {t("booking.contactPhone")}
+                  </Label>
+                  <Input
+                    id="contact_phone"
+                    name="contact_phone"
+                    type="tel"
+                    maxLength={40}
+                  />
+                </div>
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="budget">{t("booking.budget")} (USD)</Label>
-              <Input id="budget" name="budget" type="number" min={50} step={50} />
+
+            {/* Section: brief */}
+            <div className="space-y-3 border-t border-border/30 pt-4">
+              <div className="text-[11px] uppercase tracking-[0.18em] text-primary">
+                {t("booking.section.brief")}
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="message">{t("booking.message")}</Label>
+                <Textarea
+                  id="message"
+                  name="message"
+                  rows={3}
+                  maxLength={1000}
+                  placeholder={t("booking.eventTypePh")}
+                />
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="message">{t("booking.message")}</Label>
-              <Textarea id="message" name="message" rows={3} maxLength={1000} />
-            </div>
+
+            <p className="rounded-lg bg-muted/30 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
+              {t("booking.summary.label")}
+            </p>
+
             <DialogFooter>
               <Button
                 type="submit"
@@ -199,7 +309,11 @@ export function BookingDialog({
                 disabled={submitting || !pickedDate}
                 className="w-full"
               >
-                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CalendarIcon className="h-4 w-4" />}
+                {submitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <CalendarIcon className="h-4 w-4" />
+                )}
                 {t("booking.send")}
               </Button>
             </DialogFooter>

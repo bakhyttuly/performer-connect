@@ -250,6 +250,45 @@ const dict: Dict = {
   "schedule.booked": { ru: "Бронирование", en: "Booked" },
   "schedule.blocked": { ru: "Заблокировано", en: "Blocked" },
 
+  // Booking — extra fields
+  "booking.eventType": { ru: "Тип события", en: "Event type" },
+  "booking.eventTypePh": { ru: "Свадьба, корпоратив, день рождения…", en: "Wedding, corporate, birthday…" },
+  "booking.guests": { ru: "Гостей", en: "Guests" },
+  "booking.contactName": { ru: "Контактное имя", en: "Contact name" },
+  "booking.contactPhone": { ru: "Телефон", en: "Phone" },
+  "booking.section.event": { ru: "О событии", en: "About the event" },
+  "booking.section.contact": { ru: "Контакт", en: "Contact" },
+  "booking.section.brief": { ru: "Бриф", en: "Brief" },
+  "booking.summary.label": { ru: "Заявка фиксирует артиста на дату — оплата обсуждается в чате после подтверждения.", en: "The request reserves the date — payment is arranged in chat after confirmation." },
+
+  // Reviews
+  "review.title": { ru: "Оставить отзыв", en: "Leave a review" },
+  "review.rating": { ru: "Оценка", en: "Rating" },
+  "review.text": { ru: "Расскажите о работе артиста", en: "Tell us about the experience" },
+  "review.submit": { ru: "Опубликовать", en: "Publish" },
+  "review.posted": { ru: "Спасибо за отзыв!", en: "Thanks for your review!" },
+  "review.cta": { ru: "Оставить отзыв", en: "Write a review" },
+  "review.alreadyPosted": { ru: "Отзыв оставлен", en: "Review posted" },
+
+  // Auth admin
+  "auth.adminHint": { ru: "Уже админ? После входа откроется панель.", en: "Already an admin? You'll be taken to the panel after sign in." },
+  "auth.openAdmin": { ru: "Открыть админку", en: "Open admin panel" },
+
+  // Performer page
+  "profile.heroBadge": { ru: "Премиум артист EPBMS", en: "EPBMS premium artist" },
+  "profile.includes.title": { ru: "Что входит в выступление", en: "What's included" },
+  "profile.includes.1": { ru: "Согласование программы и репертуара", en: "Tailored program & setlist" },
+  "profile.includes.2": { ru: "Профессиональное звуковое и техническое сопровождение", en: "Professional sound & tech crew" },
+  "profile.includes.3": { ru: "Репетиция и таймлайн с организатором", en: "Rehearsal & timeline alignment" },
+  "profile.includes.4": { ru: "Поддержка EPBMS на всех этапах", en: "EPBMS concierge support throughout" },
+  "profile.responseTime": { ru: "Среднее время ответа", en: "Average reply" },
+  "profile.responseValue": { ru: "до 2 часов", en: "under 2 hours" },
+  "profile.completed": { ru: "Выполнено заказов", en: "Completed bookings" },
+
+  // Mobile menu
+  "nav.menu": { ru: "Меню", en: "Menu" },
+  "nav.close": { ru: "Закрыть", en: "Close" },
+
   // Misc
   "common.soon": { ru: "Скоро", en: "Soon" },
   "common.loading": { ru: "Загрузка…", en: "Loading…" },
